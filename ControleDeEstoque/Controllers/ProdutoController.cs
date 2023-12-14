@@ -62,7 +62,7 @@ namespace ControleDeEstoque.Controllers
                 var user = await userRepository.GetUser(produto.IdUser);
                 if (user == null)
                 {
-                    return NotFound($"User with ID {produto.IdUser} not found. Cannot add product.");
+                    return BadRequest($"User with ID {produto.IdUser} not found. Cannot add product.");
                 }
 
                 produtoRepository.AddProduto(produto);
@@ -75,7 +75,6 @@ namespace ControleDeEstoque.Controllers
                 return StatusCode(500, $"Erro interno do servidor: {ex.Message}");
             }
         }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Produto produto)
         {

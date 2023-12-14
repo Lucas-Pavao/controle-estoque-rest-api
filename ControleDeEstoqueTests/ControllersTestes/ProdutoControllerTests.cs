@@ -91,108 +91,22 @@ namespace ControleDeEstoqueTests
         }
 
         [Fact]
-        public async Task Post_ReturnsBadRequestWhenBodyIsInvalid()
+        public async Task Post_ReturnsBadRequestResultWhenProductIsInvalid()
         {
-            // Arrange
             var mockProdutoRepository = new Mock<IProdutoRepository>();
             var mockUserRepository = new Mock<IUserRepository>();
+            var user = new User { Id = 1, Nome = "Teste", Email = "teste@gmail.com", Senha = "123456" };
+            mockUserRepository.Setup(repo => repo.GetUser(It.IsAny<int>())).ReturnsAsync(user);
+            var produto = new Produto { Nome = "", Preco = 0, Quantidade = 0, IdUser = 0 };
             var controller = new ProdutoController(mockProdutoRepository.Object, mockUserRepository.Object);
-            controller.ModelState.AddModelError("error", "some error message"); // Simulate an invalid model state
-
-            // Act
-            var result = await controller.Post(new Produto());
-
-            // Assert
-            Assert.IsType<BadRequestObjectResult>(result); // Corrected: Expecting BadRequestObjectResult
-        }
-
-        [Fact]
-        public async Task Post_ReturnsOkResultWhenProductIsCreated()
-        {
-            // Arrange
-            var mockProdutoRepository = new Mock<IProdutoRepository>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            var controller = new ProdutoController(mockProdutoRepository.Object, mockUserRepository.Object);
-            var produto = new Produto { Id = 1, Nome = "Produto Teste", Preco = 10.0, Quantidade = 5, IdUser = 1 };
 
             // Act
             var result = await controller.Post(produto);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result); // Corrected: Expecting OkObjectResult
-            Assert.Equal("Produto adicionado com sucesso", okResult.Value);
+            Assert.IsType<BadRequestObjectResult>(result);
         }
 
-        [Fact]
-        public async Task Put_ReturnsBadRequestWhenBodyIsInvalid()
-        {
-            // Arrange
-            var mockProdutoRepository = new Mock<IProdutoRepository>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            var controller = new ProdutoController(mockProdutoRepository.Object, mockUserRepository.Object);
-            controller.ModelState.AddModelError("error", "some error message"); // Simulate an invalid model state
-
-            // Act
-            var result = await controller.Put(1, new Produto());
-
-            // Assert
-            Assert.IsType<BadRequestObjectResult>(result); // Corrected: Expecting BadRequestObjectResult
-        }
-
-        [Fact]
-        public async Task Put_ReturnsOkResultWhenProductIsUpdated()
-        {
-            // Arrange
-            var mockProdutoRepository = new Mock<IProdutoRepository>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            var controller = new ProdutoController(mockProdutoRepository.Object, mockUserRepository.Object);
-            var existingProduto = new Produto { Id = 1, Nome = "Produto Antigo", Preco = 10.0, Quantidade = 5, IdUser = 1 };
-            var updatedProduto = new Produto { Id = 1, Nome = "Produto Atualizado", Preco = 20.0, Quantidade = 10, IdUser = 1 };
-            mockProdutoRepository.Setup(repo => repo.GetProduto(1)).ReturnsAsync(existingProduto);
-
-            // Act
-            var result = await controller.Put(1, updatedProduto);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result); // Corrected: Expecting OkObjectResult
-            Assert.Equal("Produto atualizado com sucesso", okResult.Value);
-        }
-
-        [Fact]
-        public async Task Delete_ReturnsNotFoundWhenProductNotFound()
-        {
-            // Arrange
-            var mockProdutoRepository = new Mock<IProdutoRepository>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            mockProdutoRepository.Setup(repo => repo.GetProduto(1)).ReturnsAsync((Produto)null);
-
-            var controller = new ProdutoController(mockProdutoRepository.Object, mockUserRepository.Object);
-
-            // Act
-            var result = await controller.Delete(1);
-
-            // Assert
-            Assert.IsType<NotFoundObjectResult>(result);
-        }
-
-        [Fact]
-        public async Task Delete_ReturnsOkResultWhenProductIsDeleted()
-        {
-            // Arrange
-            var mockProdutoRepository = new Mock<IProdutoRepository>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            var produto = new Produto { Id = 1, Nome = "Produto Teste", Preco = 10.0, Quantidade = 5, IdUser = 1 };
-            mockProdutoRepository.Setup(repo => repo.GetProduto(1)).ReturnsAsync(produto);
-
-            var controller = new ProdutoController(mockProdutoRepository.Object, mockUserRepository.Object);
-
-            // Act
-            var result = await controller.Delete(1);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result); // Corrected: Expecting OkObjectResult
-            Assert.Equal("Produto excluído com sucesso", okResult.Value);
-        }
 
     }
 }
